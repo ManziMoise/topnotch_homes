@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../config/theme.dart';
 import '../../models/property.dart';
+import '../../services/review_service.dart';
+import '../../widgets/review_card.dart';
+import '../../widgets/star_rating.dart';
 import '../booking/booking_form_screen.dart';
 
 class PropertyDetailScreen extends StatefulWidget {
@@ -253,6 +256,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         .map((a) => _AmenityChip(amenity: a))
                         .toList(),
                   ),
+                  const SizedBox(height: 24),
+
+                  // Reviews section
+                  _ReviewsSection(
+                    propertyId: property.id,
+                    onReviewAdded: () => setState(() {}),
+                  ),
+
                   const SizedBox(height: 100), // space for bottom button
                 ],
               ),
@@ -380,5 +391,252 @@ class _AmenityChip extends StatelessWidget {
       default:
         return Icons.check_circle_outline;
     }
+  }
+}
+
+class _ReviewsSection extends StatefulWidget {
+  final String propertyId;
+  final VoidCallback onReviewAdded;
+
+  const _ReviewsSection({
+    required this.propertyId,
+    required this.onReviewAdded,
+  });
+
+  @override
+  State<_ReviewsSection> createState() => _ReviewsSectionState();
+}
+
+class _ReviewsSectionState extends State<_ReviewsSection> {
+  final _reviewService = ReviewService();
+  bool _showAll = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final reviews = _reviewService.getReviewsForProperty(widget.propertyId);
+    final avgRating = _reviewService.getAverageRating(widget.propertyId);
+    final displayedReviews = _showAll ? reviews : reviews.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Reviews',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            if (reviews.isNotEmpty)
+              Row(
+                children: [
+                  StarRating(rating: avgRating, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${avgRating.toStringAsFixed(1)} (${reviews.length})',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Write review button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _showWriteReviewDialog(context),
+            icon: const Icon(Icons.rate_review_outlined, size: 18),
+            label: const Text('Write a Review'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Reviews list
+        if (reviews.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                'No reviews yet. Be the first!',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          )
+        else ...[
+          ...displayedReviews.map((r) => ReviewCard(review: r)),
+          if (reviews.length > 3 && !_showAll)
+            Center(
+              child: TextButton(
+                onPressed: () => setState(() => _showAll = true),
+                child: Text(
+                  'Show all ${reviews.length} reviews',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
+  void _showWriteReviewDialog(BuildContext context) {
+    double selectedRating = 5.0;
+    final commentController = TextEditingController();
+    final nameController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                24, 24, 24,
+                MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.divider,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Write a Review',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Name
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Your Name',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Rating
+                  Text(
+                    'Your Rating',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: StarRating(
+                      rating: selectedRating,
+                      size: 36,
+                      interactive: true,
+                      onChanged: (val) {
+                        setModalState(() => selectedRating = val);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Comment
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Your Review',
+                      alignLabelWithHint: true,
+                      hintText: 'Share your experience...',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Submit
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (nameController.text.trim().isEmpty ||
+                            commentController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill in all fields'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
+                        _reviewService.addReview(
+                          propertyId: widget.propertyId,
+                          guestName: nameController.text.trim(),
+                          rating: selectedRating,
+                          comment: commentController.text.trim(),
+                        );
+                        Navigator.pop(ctx);
+                        setState(() {});
+                        widget.onReviewAdded();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Review submitted!'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      },
+                      child: const Text('Submit Review'),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
