@@ -23,6 +23,8 @@ class PropertyService {
       rating: 4.7,
       isVerified: true,
       isFeatured: true,
+      latitude: -1.9536,
+      longitude: 30.0926,
     ),
     const Property(
       id: '2',
@@ -44,6 +46,8 @@ class PropertyService {
       rating: 4.9,
       isVerified: true,
       isFeatured: true,
+      latitude: -1.6813,
+      longitude: 29.2387,
     ),
     const Property(
       id: '3',
@@ -64,6 +68,8 @@ class PropertyService {
       rating: 4.3,
       isVerified: true,
       isFeatured: false,
+      latitude: -1.4998,
+      longitude: 29.6350,
     ),
     const Property(
       id: '4',
@@ -84,6 +90,8 @@ class PropertyService {
       rating: 4.5,
       isVerified: true,
       isFeatured: true,
+      latitude: -2.3628,
+      longitude: 30.0875,
     ),
     const Property(
       id: '5',
@@ -104,6 +112,8 @@ class PropertyService {
       rating: 4.1,
       isVerified: false,
       isFeatured: false,
+      latitude: -2.5966,
+      longitude: 29.7394,
     ),
     const Property(
       id: '6',
@@ -125,6 +135,8 @@ class PropertyService {
       rating: 4.8,
       isVerified: true,
       isFeatured: true,
+      latitude: -1.9403,
+      longitude: 30.0587,
     ),
     const Property(
       id: '7',
@@ -144,6 +156,8 @@ class PropertyService {
       rating: 4.6,
       isVerified: true,
       isFeatured: false,
+      latitude: -1.6770,
+      longitude: 29.2560,
     ),
     const Property(
       id: '8',
@@ -164,6 +178,8 @@ class PropertyService {
       rating: 4.9,
       isVerified: true,
       isFeatured: true,
+      latitude: -2.4820,
+      longitude: 29.2180,
     ),
   ];
 

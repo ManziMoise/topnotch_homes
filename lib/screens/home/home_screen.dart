@@ -3,9 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../config/theme.dart';
 import '../../models/property.dart';
+import '../../services/notification_service.dart';
 import '../../services/property_service.dart';
 import '../../widgets/category_chip.dart';
 import '../../widgets/property_card.dart';
+import '../map/map_screen.dart';
+import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../property/property_detail_screen.dart';
 import '../search/search_screen.dart';
@@ -19,7 +22,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _propertyService = PropertyService();
+  final _notificationService = NotificationService();
   PropertyType? _selectedType;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationService.addListener(_onNotificationUpdate);
+  }
+
+  @override
+  void dispose() {
+    _notificationService.removeListener(_onNotificationUpdate);
+    super.dispose();
+  }
+
+  void _onNotificationUpdate() {
+    if (mounted) setState(() {});
+  }
 
   List<Property> get _filteredProperties {
     if (_selectedType == null) return _propertyService.getAllProperties();
@@ -67,24 +87,75 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ProfileScreen(),
+                        Row(
+                          children: [
+                            // Notification bell
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const NotificationsScreen(),
+                                ),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Icon(
+                                      Icons.notifications_outlined,
+                                      color: AppColors.primary,
+                                    ),
+                                    if (_notificationService.unreadCount > 0)
+                                      Positioned(
+                                        right: -4,
+                                        top: -4,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.error,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Text(
+                                            '${_notificationService.unreadCount}',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
+                            const SizedBox(width: 10),
+                            // Profile icon
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ProfileScreen(),
+                                ),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.person_outline,
+                                  color: AppColors.primary,
+                                ),
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.person_outline,
-                              color: AppColors.primary,
-                            ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -114,6 +185,44 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextStyle(
                                 color: AppColors.textLight,
                                 fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Map view button
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MapScreen()),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.map_outlined,
+                                size: 18, color: AppColors.primary),
+                            const SizedBox(width: 8),
+                            Text(
+                              'View Properties on Map',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
                               ),
                             ),
                           ],

@@ -13,6 +13,8 @@ class Property {
   final double rating;
   final bool isVerified;
   final bool isFeatured;
+  final double? latitude;
+  final double? longitude;
 
   const Property({
     required this.id,
@@ -27,7 +29,11 @@ class Property {
     required this.rating,
     this.isVerified = false,
     this.isFeatured = false,
+    this.latitude,
+    this.longitude,
   });
+
+  bool get hasCoordinates => latitude != null && longitude != null;
 
   String get propertyTypeLabel {
     switch (propertyType) {

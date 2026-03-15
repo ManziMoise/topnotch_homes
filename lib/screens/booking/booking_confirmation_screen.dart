@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 
 import '../../config/theme.dart';
 import '../../models/booking.dart';
+import '../../services/notification_service.dart';
 import '../home/home_screen.dart';
 
-class BookingConfirmationScreen extends StatelessWidget {
+class BookingConfirmationScreen extends StatefulWidget {
   final Booking booking;
   final bool isPaid;
 
@@ -15,6 +16,45 @@ class BookingConfirmationScreen extends StatelessWidget {
     required this.booking,
     this.isPaid = false,
   });
+
+  @override
+  State<BookingConfirmationScreen> createState() =>
+      _BookingConfirmationScreenState();
+}
+
+class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
+  Booking get booking => widget.booking;
+  bool get isPaid => widget.isPaid;
+
+  @override
+  void initState() {
+    super.initState();
+    _sendNotifications();
+  }
+
+  Future<void> _sendNotifications() async {
+    final ns = NotificationService();
+    final dateFormat = DateFormat('MMM dd');
+
+    if (isPaid) {
+      await ns.sendBookingConfirmation(
+        bookingId: booking.id,
+        propertyTitle: booking.propertyTitle,
+        checkIn: dateFormat.format(booking.checkIn),
+        checkOut: dateFormat.format(booking.checkOut),
+      );
+      await ns.sendPaymentReceived(
+        bookingId: booking.id,
+        amount: booking.totalPrice,
+        method: 'Mobile Money',
+      );
+    } else {
+      await ns.sendBookingPending(
+        bookingId: booking.id,
+        propertyTitle: booking.propertyTitle,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
