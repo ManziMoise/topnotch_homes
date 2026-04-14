@@ -123,7 +123,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Max stay threshold setting
+            // Max active bookings threshold
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -133,21 +133,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.nights_stay, color: AppColors.primary),
+                  const Icon(Icons.event_busy, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Max Stay Threshold',
+                          'Max Bookings Threshold',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
-                          '${settingsService.globalMaxBookingDays} nights (global default)',
+                          '${settingsService.maxActiveBookings} active bookings allowed',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -161,13 +161,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       IconButton(
                         icon: const Icon(Icons.remove_circle_outline),
                         color: AppColors.primary,
-                        onPressed: settingsService.globalMaxBookingDays > 1
-                            ? () => settingsService.setGlobalMaxBookingDays(
-                                settingsService.globalMaxBookingDays - 1)
+                        onPressed: settingsService.maxActiveBookings > 1
+                            ? () => settingsService.setMaxActiveBookings(
+                                settingsService.maxActiveBookings - 1)
                             : null,
                       ),
                       Text(
-                        '${settingsService.globalMaxBookingDays}',
+                        '${settingsService.maxActiveBookings}',
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -176,9 +176,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline),
                         color: AppColors.primary,
-                        onPressed: settingsService.globalMaxBookingDays < 30
-                            ? () => settingsService.setGlobalMaxBookingDays(
-                                settingsService.globalMaxBookingDays + 1)
+                        onPressed: settingsService.maxActiveBookings < 100
+                            ? () => settingsService.setMaxActiveBookings(
+                                settingsService.maxActiveBookings + 1)
                             : null,
                       ),
                     ],
@@ -212,12 +212,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 12),
             _AdminActionTile(
               icon: Icons.bookmark_border,
-              title: 'Manage Bookings',
-              subtitle: 'View and update booking statuses',
+              title: 'View Bookings',
+              subtitle: 'View all booking statuses',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const ManageBookingsScreen(),
+                  builder: (_) => const ManageBookingsScreen(canManage: false),
                 ),
               ),
             ),
@@ -386,21 +386,21 @@ class _AdminDashboardBodyState extends State<_AdminDashboardBody> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.nights_stay, color: AppColors.primary),
+                const Icon(Icons.event_busy, color: AppColors.primary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Max Stay Threshold',
+                        'Max Bookings Threshold',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
-                        '${settingsService.globalMaxBookingDays} nights (global default)',
+                        '${settingsService.maxActiveBookings} active bookings allowed',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -414,13 +414,13 @@ class _AdminDashboardBodyState extends State<_AdminDashboardBody> {
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
                       color: AppColors.primary,
-                      onPressed: settingsService.globalMaxBookingDays > 1
-                          ? () => settingsService.setGlobalMaxBookingDays(
-                              settingsService.globalMaxBookingDays - 1)
+                      onPressed: settingsService.maxActiveBookings > 1
+                          ? () => settingsService.setMaxActiveBookings(
+                              settingsService.maxActiveBookings - 1)
                           : null,
                     ),
                     Text(
-                      '${settingsService.globalMaxBookingDays}',
+                      '${settingsService.maxActiveBookings}',
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -429,9 +429,9 @@ class _AdminDashboardBodyState extends State<_AdminDashboardBody> {
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
                       color: AppColors.primary,
-                      onPressed: settingsService.globalMaxBookingDays < 30
-                          ? () => settingsService.setGlobalMaxBookingDays(
-                              settingsService.globalMaxBookingDays + 1)
+                      onPressed: settingsService.maxActiveBookings < 100
+                          ? () => settingsService.setMaxActiveBookings(
+                              settingsService.maxActiveBookings + 1)
                           : null,
                     ),
                   ],
@@ -463,12 +463,12 @@ class _AdminDashboardBodyState extends State<_AdminDashboardBody> {
           const SizedBox(height: 12),
           _AdminActionTile(
             icon: Icons.bookmark_border,
-            title: 'Manage Bookings',
-            subtitle: 'View and update booking statuses',
+            title: 'View Bookings',
+            subtitle: 'View all booking statuses',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ManageBookingsScreen(),
+                builder: (_) => const ManageBookingsScreen(canManage: false),
               ),
             ),
           ),

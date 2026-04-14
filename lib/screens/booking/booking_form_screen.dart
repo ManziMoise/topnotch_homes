@@ -30,7 +30,6 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   DateTime? _checkIn;
   DateTime? _checkOut;
   int _guests = 1;
-  late int _maxStay;
 
   @override
   void initState() {
@@ -43,9 +42,6 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
       _phoneController.text = user.phone;
       _emailController.text = user.email;
     }
-    // Get max stay
-    final settingsService = SettingsService();
-    _maxStay = settingsService.getMaxStayForProperty(widget.property.maxStayDays);
   }
 
   int get _nights =>
@@ -108,10 +104,13 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
       return;
     }
 
-    if (_nights > _maxStay) {
+    // Check max active bookings threshold
+    final settingsService = context.read<SettingsService>();
+    final activeBookings = _bookingService.pendingCount + _bookingService.confirmedCount;
+    if (activeBookings >= settingsService.maxActiveBookings) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Maximum stay is $_maxStay nights for this property'),
+          content: Text('Booking limit reached (${settingsService.maxActiveBookings} active bookings). Please try again later.'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -239,28 +238,10 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: _nights > _maxStay ? AppColors.error : AppColors.primary,
+                    color: AppColors.primary,
                   ),
                 ),
-                if (_nights > _maxStay)
-                  Text(
-                    'Maximum stay is $_maxStay nights',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: AppColors.error,
-                    ),
-                  ),
               ],
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Max stay: $_maxStay nights',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: AppColors.textLight,
-                  ),
-                ),
-              ),
               const SizedBox(height: 24),
 
               // Guests

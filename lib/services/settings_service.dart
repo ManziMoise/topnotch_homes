@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 
 class SettingsService extends ChangeNotifier {
-  int _globalMaxBookingDays = 10;
+  int _maxActiveBookings = 10;
 
-  int get globalMaxBookingDays => _globalMaxBookingDays;
+  int get maxActiveBookings => _maxActiveBookings;
 
-  void setGlobalMaxBookingDays(int days) {
-    if (days > 0 && days <= 30) {
-      _globalMaxBookingDays = days;
+  void setMaxActiveBookings(int count) {
+    if (count > 0 && count <= 100) {
+      _maxActiveBookings = count;
       notifyListeners();
     }
-  }
-
-  /// Returns the effective max stay for a property.
-  /// Uses per-property override if set, otherwise global default.
-  int getMaxStayForProperty(int? propertyMaxDays) {
-    return propertyMaxDays ?? _globalMaxBookingDays;
   }
 }

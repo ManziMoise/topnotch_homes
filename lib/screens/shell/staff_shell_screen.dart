@@ -49,8 +49,8 @@ class _StaffShellScreenState extends State<StaffShellScreen> {
       ));
       items.add(_DrawerNavItem(
         icon: Icons.bookmark_border,
-        label: 'Manage Bookings',
-        builder: () => const ManageBookingsScreen(),
+        label: 'View Bookings',
+        builder: () => const ManageBookingsScreen(canManage: false),
       ));
     }
 

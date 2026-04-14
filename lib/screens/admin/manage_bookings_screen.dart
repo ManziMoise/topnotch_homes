@@ -7,7 +7,9 @@ import '../../models/booking.dart';
 import '../../services/booking_service.dart';
 
 class ManageBookingsScreen extends StatefulWidget {
-  const ManageBookingsScreen({super.key});
+  final bool canManage;
+
+  const ManageBookingsScreen({super.key, this.canManage = true});
 
   @override
   State<ManageBookingsScreen> createState() => _ManageBookingsScreenState();
@@ -22,7 +24,7 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
     final bookings = _bookingService.getAllBookings();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Bookings')),
+      appBar: AppBar(title: Text(widget.canManage ? 'Manage Bookings' : 'View Bookings')),
       body: bookings.isEmpty
           ? Center(
               child: Column(
@@ -49,6 +51,7 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
                 return _AdminBookingCard(
                   booking: booking,
                   dateFormat: _dateFormat,
+                  canManage: widget.canManage,
                   onStatusChange: (newStatus) {
                     _bookingService.updateBookingStatus(
                         booking.id, newStatus);
@@ -71,11 +74,13 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
 class _AdminBookingCard extends StatelessWidget {
   final Booking booking;
   final DateFormat dateFormat;
+  final bool canManage;
   final void Function(BookingStatus) onStatusChange;
 
   const _AdminBookingCard({
     required this.booking,
     required this.dateFormat,
+    this.canManage = true,
     required this.onStatusChange,
   });
 
@@ -138,35 +143,36 @@ class _AdminBookingCard extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-                Row(
-                  children: [
-                    if (booking.status == BookingStatus.pending) ...[
-                      _actionButton(
-                        'Confirm',
-                        AppColors.success,
-                        () => onStatusChange(BookingStatus.confirmed),
-                      ),
-                      const SizedBox(width: 8),
-                      _actionButton(
-                        'Cancel',
-                        AppColors.error,
-                        () => onStatusChange(BookingStatus.cancelled),
-                      ),
+                if (canManage)
+                  Row(
+                    children: [
+                      if (booking.status == BookingStatus.pending) ...[
+                        _actionButton(
+                          'Confirm',
+                          AppColors.success,
+                          () => onStatusChange(BookingStatus.confirmed),
+                        ),
+                        const SizedBox(width: 8),
+                        _actionButton(
+                          'Cancel',
+                          AppColors.error,
+                          () => onStatusChange(BookingStatus.cancelled),
+                        ),
+                      ],
+                      if (booking.status == BookingStatus.confirmed)
+                        _actionButton(
+                          'Cancel',
+                          AppColors.error,
+                          () => onStatusChange(BookingStatus.cancelled),
+                        ),
+                      if (booking.status == BookingStatus.cancelled)
+                        _actionButton(
+                          'Reopen',
+                          AppColors.primary,
+                          () => onStatusChange(BookingStatus.pending),
+                        ),
                     ],
-                    if (booking.status == BookingStatus.confirmed)
-                      _actionButton(
-                        'Cancel',
-                        AppColors.error,
-                        () => onStatusChange(BookingStatus.cancelled),
-                      ),
-                    if (booking.status == BookingStatus.cancelled)
-                      _actionButton(
-                        'Reopen',
-                        AppColors.primary,
-                        () => onStatusChange(BookingStatus.pending),
-                      ),
-                  ],
-                ),
+                  ),
               ],
             ),
           ],
