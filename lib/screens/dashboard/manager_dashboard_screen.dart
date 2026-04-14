@@ -13,6 +13,10 @@ class ManagerDashboardScreen extends StatelessWidget {
   final _propertyService = PropertyService();
   final _bookingService = BookingService();
 
+  static Widget buildBody() {
+    return const _ManagerDashboardBody();
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalProperties = _propertyService.totalCount;
@@ -189,6 +193,136 @@ class _StatCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 13,
               color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ManagerDashboardBody extends StatelessWidget {
+  const _ManagerDashboardBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final propertyService = PropertyService();
+    final bookingService = BookingService();
+    final totalProperties = propertyService.totalCount;
+    final totalBookings = bookingService.totalCount;
+    final pendingBookings = bookingService.pendingCount;
+    final confirmedBookings = bookingService.confirmedCount;
+    final cancelledBookings = bookingService.cancelledCount;
+    final totalRevenue = bookingService.totalRevenue;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Overview',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.home_work,
+                  label: 'Properties',
+                  value: '$totalProperties',
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.bookmark,
+                  label: 'Total Bookings',
+                  value: '$totalBookings',
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.pending_actions,
+                  label: 'Pending',
+                  value: '$pendingBookings',
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.check_circle,
+                  label: 'Confirmed',
+                  value: '$confirmedBookings',
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.cancel,
+                  label: 'Cancelled',
+                  value: '$cancelledBookings',
+                  color: AppColors.error,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.attach_money,
+                  label: 'Revenue',
+                  value: '\$${totalRevenue.toStringAsFixed(0)}',
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Text(
+            'Actions',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _ActionTile(
+            icon: Icons.bookmark_border,
+            title: 'Manage Bookings',
+            subtitle: 'View and update booking statuses',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const ManageBookingsScreen()),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _ActionTile(
+            icon: Icons.home_work_outlined,
+            title: 'View Properties',
+            subtitle: 'Browse property listings (read-only)',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const ManagePropertiesScreen(canEdit: false)),
             ),
           ),
         ],

@@ -173,6 +173,157 @@ class HostDashboardScreen extends StatelessWidget {
   }
 }
 
+class HostDashboardBody extends StatelessWidget {
+  const HostDashboardBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final propertyService = PropertyService();
+    final bookingService = BookingService();
+    final authService = context.watch<AuthService>();
+    final user = authService.currentUser;
+    final hostId = user?.id;
+
+    final allProperties = propertyService.getAllProperties();
+    final hostProperties =
+        allProperties.where((p) => p.hostId == hostId).toList();
+
+    double hostRevenue = 0;
+    int hostBookingCount = 0;
+    int hostPendingCount = 0;
+    for (final prop in hostProperties) {
+      final propBookings = bookingService.getBookingsForProperty(prop.id);
+      hostBookingCount += propBookings.length;
+      hostPendingCount +=
+          propBookings.where((b) => b.status.name == 'pending').length;
+      hostRevenue += propBookings.fold(0.0, (sum, b) => sum + b.totalPrice);
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your Properties',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.home_work,
+                  label: 'My Properties',
+                  value: '${hostProperties.length}',
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.bookmark,
+                  label: 'Bookings',
+                  value: '$hostBookingCount',
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.pending_actions,
+                  label: 'Pending',
+                  value: '$hostPendingCount',
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.attach_money,
+                  label: 'Revenue',
+                  value: '\$${hostRevenue.toStringAsFixed(0)}',
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Text(
+            'My Listings',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (hostProperties.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  'No properties assigned to your account yet.',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...hostProperties.map((property) {
+              final propBookings =
+                  bookingService.getBookingsForProperty(property.id);
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  title: Text(
+                    property.title,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${property.location} | ${propBookings.length} bookings',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right,
+                      color: AppColors.textLight),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PropertyBookingsScreen(
+                        propertyId: property.id,
+                        propertyTitle: property.title,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final IconData icon;
   final String label;

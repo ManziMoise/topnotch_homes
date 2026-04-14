@@ -14,7 +14,9 @@ import '../property/property_detail_screen.dart';
 import '../search/search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool embedded;
+
+  const HomeScreen({super.key, this.embedded = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -87,76 +89,77 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        Row(
-                          children: [
-                            // Notification bell
-                            GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const NotificationsScreen(),
+                        if (!widget.embedded)
+                          Row(
+                            children: [
+                              // Notification bell
+                              GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const NotificationsScreen(),
+                                  ),
                                 ),
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const Icon(
-                                      Icons.notifications_outlined,
-                                      color: AppColors.primary,
-                                    ),
-                                    if (_notificationService.unreadCount > 0)
-                                      Positioned(
-                                        right: -4,
-                                        top: -4,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.error,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Text(
-                                            '${_notificationService.unreadCount}',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      const Icon(
+                                        Icons.notifications_outlined,
+                                        color: AppColors.primary,
+                                      ),
+                                      if (_notificationService.unreadCount > 0)
+                                        Positioned(
+                                          right: -4,
+                                          top: -4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.error,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Text(
+                                              '${_notificationService.unreadCount}',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            // Profile icon
-                            GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const ProfileScreen(),
+                              const SizedBox(width: 10),
+                              // Profile icon
+                              GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ProfileScreen(),
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.person_outline,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.person_outline,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
                       ],
                     ),
                     const SizedBox(height: 20),

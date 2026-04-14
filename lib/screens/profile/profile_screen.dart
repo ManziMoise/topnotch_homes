@@ -6,11 +6,8 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
-import '../admin/admin_dashboard_screen.dart';
 import '../auth/login_screen.dart';
 import '../bookings/my_bookings_screen.dart';
-import '../dashboard/host_dashboard_screen.dart';
-import '../dashboard/manager_dashboard_screen.dart';
 import '../dashboard/user_dashboard_screen.dart';
 import '../faq/faq_screen.dart';
 
@@ -148,34 +145,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const Divider(height: 24),
 
-            // Role-based dashboard links
-            if (user.role == UserRole.admin)
-              _actionTile(
-                icon: Icons.admin_panel_settings_outlined,
-                label: 'Admin Dashboard',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
-                ),
-              ),
-            if (user.role == UserRole.manager)
-              _actionTile(
-                icon: Icons.dashboard_outlined,
-                label: 'Manager Dashboard',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => ManagerDashboardScreen()),
-                ),
-              ),
-            if (user.role == UserRole.host)
-              _actionTile(
-                icon: Icons.home_work_outlined,
-                label: 'Host Dashboard',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => HostDashboardScreen()),
-                ),
-              ),
+            // User dashboard link (staff roles access dashboard via sidebar)
             if (user.role == UserRole.user)
               _actionTile(
                 icon: Icons.dashboard_outlined,

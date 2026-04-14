@@ -12,6 +12,10 @@ import 'manage_properties_screen.dart';
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
+  static Widget buildBody() {
+    return const _AdminDashboardBody();
+  }
+
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
@@ -264,6 +268,208 @@ class _StatCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 13,
               color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdminDashboardBody extends StatefulWidget {
+  const _AdminDashboardBody();
+
+  @override
+  State<_AdminDashboardBody> createState() => _AdminDashboardBodyState();
+}
+
+class _AdminDashboardBodyState extends State<_AdminDashboardBody> {
+  final _propertyService = PropertyService();
+  final _bookingService = BookingService();
+
+  @override
+  Widget build(BuildContext context) {
+    final settingsService = context.watch<SettingsService>();
+    final totalProperties = _propertyService.totalCount;
+    final totalBookings = _bookingService.totalCount;
+    final pendingBookings = _bookingService.pendingCount;
+    final confirmedBookings = _bookingService.confirmedCount;
+    final cancelledBookings = _bookingService.cancelledCount;
+    final totalRevenue = _bookingService.totalRevenue;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dashboard',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.home_work,
+                  label: 'Properties',
+                  value: '$totalProperties',
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.bookmark,
+                  label: 'Bookings',
+                  value: '$totalBookings',
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.pending_actions,
+                  label: 'Pending',
+                  value: '$pendingBookings',
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.attach_money,
+                  label: 'Revenue',
+                  value: '\$${totalRevenue.toStringAsFixed(0)}',
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.check_circle,
+                  label: 'Confirmed',
+                  value: '$confirmedBookings',
+                  color: AppColors.success,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  icon: Icons.cancel,
+                  label: 'Cancelled',
+                  value: '$cancelledBookings',
+                  color: AppColors.error,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.divider),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.nights_stay, color: AppColors.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Max Stay Threshold',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '${settingsService.globalMaxBookingDays} nights (global default)',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: AppColors.primary,
+                      onPressed: settingsService.globalMaxBookingDays > 1
+                          ? () => settingsService.setGlobalMaxBookingDays(
+                              settingsService.globalMaxBookingDays - 1)
+                          : null,
+                    ),
+                    Text(
+                      '${settingsService.globalMaxBookingDays}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: AppColors.primary,
+                      onPressed: settingsService.globalMaxBookingDays < 30
+                          ? () => settingsService.setGlobalMaxBookingDays(
+                              settingsService.globalMaxBookingDays + 1)
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          Text(
+            'Management',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _AdminActionTile(
+            icon: Icons.home_work_outlined,
+            title: 'Manage Properties',
+            subtitle: 'Add, edit, or remove property listings',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ManagePropertiesScreen(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _AdminActionTile(
+            icon: Icons.bookmark_border,
+            title: 'Manage Bookings',
+            subtitle: 'View and update booking statuses',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ManageBookingsScreen(),
+              ),
             ),
           ),
         ],

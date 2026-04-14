@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../home/home_screen.dart';
+import '../shell/staff_shell_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -36,9 +38,14 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text(error), backgroundColor: AppColors.error),
       );
     } else {
+      final role = authService.currentUser?.role;
+      final isStaff = role != null && role != UserRole.user;
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (_) =>
+              isStaff ? const StaffShellScreen() : const HomeScreen(),
+        ),
         (route) => false,
       );
     }

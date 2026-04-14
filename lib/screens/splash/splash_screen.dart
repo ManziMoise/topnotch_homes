@@ -4,9 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
 import '../home/home_screen.dart';
+import '../shell/staff_shell_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,11 +36,17 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        final isLoggedIn = context.read<AuthService>().isLoggedIn;
+        final authService = context.read<AuthService>();
+        final isLoggedIn = authService.isLoggedIn;
+        final role = authService.currentUser?.role;
+        final isStaff = role != null && role != UserRole.user;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) =>
-                isLoggedIn ? const HomeScreen() : const LoginScreen(),
+            builder: (_) => !isLoggedIn
+                ? const LoginScreen()
+                : isStaff
+                    ? const StaffShellScreen()
+                    : const HomeScreen(),
           ),
         );
       }
