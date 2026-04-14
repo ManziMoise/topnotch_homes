@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
 import '../../models/app_notification.dart';
+import '../../services/auth_service.dart';
 import '../../services/notification_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -34,7 +36,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final notifications = _notificationService.notifications;
+    final authService = context.watch<AuthService>();
+    final user = authService.currentUser;
+
+    final notifications = (user != null)
+        ? _notificationService.getNotificationsForUser(user.id, user.role)
+        : _notificationService.notifications;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -232,6 +239,10 @@ class _NotificationTile extends StatelessWidget {
         return Icons.schedule;
       case NotificationType.bookingCancelled:
         return Icons.cancel_outlined;
+      case NotificationType.bookingRequest:
+        return Icons.inbox;
+      case NotificationType.bookingCancelledByGuest:
+        return Icons.person_off_outlined;
       case NotificationType.paymentReceived:
         return Icons.payment;
       case NotificationType.reviewReceived:
@@ -248,6 +259,10 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.bookingPending:
         return AppColors.starYellow;
       case NotificationType.bookingCancelled:
+        return AppColors.error;
+      case NotificationType.bookingRequest:
+        return AppColors.primary;
+      case NotificationType.bookingCancelledByGuest:
         return AppColors.error;
       case NotificationType.paymentReceived:
         return AppColors.primary;

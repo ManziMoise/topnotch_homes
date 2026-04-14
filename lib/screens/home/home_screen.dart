@@ -262,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(width: 10),
                           CategoryChip(
-                            label: 'Budget',
+                            label: 'Bronze',
                             icon: Icons.savings_outlined,
                             isSelected: _selectedType == PropertyType.budget,
                             onTap: () => setState(
@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(width: 10),
                           CategoryChip(
-                            label: 'Mid-Range',
+                            label: 'Silver',
                             icon: Icons.apartment_outlined,
                             isSelected: _selectedType == PropertyType.midrange,
                             onTap: () => setState(
@@ -278,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(width: 10),
                           CategoryChip(
-                            label: 'Luxury',
+                            label: 'Gold',
                             icon: Icons.villa_outlined,
                             isSelected: _selectedType == PropertyType.luxury,
                             onTap: () => setState(

@@ -175,11 +175,11 @@ class PropertyCard extends StatelessWidget {
   Color get _badgeColor {
     switch (property.propertyType) {
       case PropertyType.budget:
-        return AppColors.success;
+        return AppColors.bronze;
       case PropertyType.midrange:
-        return AppColors.accent;
+        return AppColors.silver;
       case PropertyType.luxury:
-        return AppColors.primaryDark;
+        return AppColors.gold;
     }
   }
 }

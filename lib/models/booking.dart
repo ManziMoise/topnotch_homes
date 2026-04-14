@@ -7,6 +7,7 @@ class Booking {
   final String guestName;
   final String guestPhone;
   final String guestEmail;
+  final String? guestUserId;
   final DateTime checkIn;
   final DateTime checkOut;
   final int guests;
@@ -23,6 +24,7 @@ class Booking {
     required this.guestName,
     required this.guestPhone,
     required this.guestEmail,
+    this.guestUserId,
     required this.checkIn,
     required this.checkOut,
     required this.guests,

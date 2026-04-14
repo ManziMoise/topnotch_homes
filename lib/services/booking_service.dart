@@ -13,6 +13,7 @@ class BookingService {
     required String guestName,
     required String guestPhone,
     required String guestEmail,
+    String? guestUserId,
     required DateTime checkIn,
     required DateTime checkOut,
     required int guests,
@@ -30,6 +31,7 @@ class BookingService {
       guestName: guestName,
       guestPhone: guestPhone,
       guestEmail: guestEmail,
+      guestUserId: guestUserId,
       checkIn: checkIn,
       checkOut: checkOut,
       guests: guests,
@@ -46,6 +48,14 @@ class BookingService {
 
   List<Booking> getAllBookings() => List.unmodifiable(_bookings);
 
+  List<Booking> getBookingsForProperty(String propertyId) {
+    return _bookings.where((b) => b.propertyId == propertyId).toList();
+  }
+
+  List<Booking> getBookingsForUser(String userId) {
+    return _bookings.where((b) => b.guestUserId == userId).toList();
+  }
+
   void updateBookingStatus(String bookingId, BookingStatus newStatus) {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
     if (index != -1) {
@@ -57,6 +67,7 @@ class BookingService {
         guestName: old.guestName,
         guestPhone: old.guestPhone,
         guestEmail: old.guestEmail,
+        guestUserId: old.guestUserId,
         checkIn: old.checkIn,
         checkOut: old.checkOut,
         guests: old.guests,
@@ -69,7 +80,23 @@ class BookingService {
     }
   }
 
+  void cancelBooking(String bookingId) {
+    updateBookingStatus(bookingId, BookingStatus.cancelled);
+  }
+
   int get totalCount => _bookings.length;
-  int get pendingCount => _bookings.where((b) => b.status == BookingStatus.pending).length;
-  double get totalRevenue => _bookings.fold(0, (sum, b) => sum + b.totalPrice);
+  int get pendingCount =>
+      _bookings.where((b) => b.status == BookingStatus.pending).length;
+  int get confirmedCount =>
+      _bookings.where((b) => b.status == BookingStatus.confirmed).length;
+  int get cancelledCount =>
+      _bookings.where((b) => b.status == BookingStatus.cancelled).length;
+  double get totalRevenue =>
+      _bookings.fold(0, (sum, b) => sum + b.totalPrice);
+
+  Map<String, int> get statusCounts => {
+        'pending': pendingCount,
+        'confirmed': confirmedCount,
+        'cancelled': cancelledCount,
+      };
 }

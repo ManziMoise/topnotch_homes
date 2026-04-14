@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
 import '../../services/booking_service.dart';
 import '../../services/property_service.dart';
-import '../../services/settings_service.dart';
-import 'manage_bookings_screen.dart';
-import 'manage_properties_screen.dart';
+import '../admin/manage_bookings_screen.dart';
+import '../admin/manage_properties_screen.dart';
 
-class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+class ManagerDashboardScreen extends StatelessWidget {
+  ManagerDashboardScreen({super.key});
 
-  @override
-  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
-}
-
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final _propertyService = PropertyService();
   final _bookingService = BookingService();
 
   @override
   Widget build(BuildContext context) {
-    final settingsService = context.watch<SettingsService>();
     final totalProperties = _propertyService.totalCount;
     final totalBookings = _bookingService.totalCount;
     final pendingBookings = _bookingService.pendingCount;
@@ -32,7 +24,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: const Text('Manager Dashboard'),
         backgroundColor: AppColors.primaryDark,
         foregroundColor: Colors.white,
       ),
@@ -42,7 +34,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Dashboard',
+              'Overview',
               style: GoogleFonts.poppins(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -51,7 +43,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Stats grid
+            // Stats
             Row(
               children: [
                 Expanded(
@@ -66,7 +58,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Expanded(
                   child: _StatCard(
                     icon: Icons.bookmark,
-                    label: 'Bookings',
+                    label: 'Total Bookings',
                     value: '$totalBookings',
                     color: AppColors.accent,
                   ),
@@ -87,9 +79,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _StatCard(
-                    icon: Icons.attach_money,
-                    label: 'Revenue',
-                    value: '\$${totalRevenue.toStringAsFixed(0)}',
+                    icon: Icons.check_circle,
+                    label: 'Confirmed',
+                    value: '$confirmedBookings',
                     color: AppColors.success,
                   ),
                 ),
@@ -100,92 +92,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 Expanded(
                   child: _StatCard(
-                    icon: Icons.check_circle,
-                    label: 'Confirmed',
-                    value: '$confirmedBookings',
-                    color: AppColors.success,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
                     icon: Icons.cancel,
                     label: 'Cancelled',
                     value: '$cancelledBookings',
                     color: AppColors.error,
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatCard(
+                    icon: Icons.attach_money,
+                    label: 'Revenue',
+                    value: '\$${totalRevenue.toStringAsFixed(0)}',
+                    color: AppColors.success,
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 24),
-
-            // Max stay threshold setting
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.nights_stay, color: AppColors.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Max Stay Threshold',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '${settingsService.globalMaxBookingDays} nights (global default)',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline),
-                        color: AppColors.primary,
-                        onPressed: settingsService.globalMaxBookingDays > 1
-                            ? () => settingsService.setGlobalMaxBookingDays(
-                                settingsService.globalMaxBookingDays - 1)
-                            : null,
-                      ),
-                      Text(
-                        '${settingsService.globalMaxBookingDays}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline),
-                        color: AppColors.primary,
-                        onPressed: settingsService.globalMaxBookingDays < 30
-                            ? () => settingsService.setGlobalMaxBookingDays(
-                                settingsService.globalMaxBookingDays + 1)
-                            : null,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 30),
 
             Text(
-              'Management',
+              'Actions',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -194,27 +121,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 12),
 
-            _AdminActionTile(
-              icon: Icons.home_work_outlined,
-              title: 'Manage Properties',
-              subtitle: 'Add, edit, or remove property listings',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ManagePropertiesScreen(),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            _AdminActionTile(
+            _ActionTile(
               icon: Icons.bookmark_border,
               title: 'Manage Bookings',
               subtitle: 'View and update booking statuses',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const ManageBookingsScreen(),
-                ),
+                    builder: (_) => const ManageBookingsScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _ActionTile(
+              icon: Icons.home_work_outlined,
+              title: 'View Properties',
+              subtitle: 'Browse property listings (read-only)',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const ManagePropertiesScreen(canEdit: false)),
               ),
             ),
           ],
@@ -272,13 +197,13 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _AdminActionTile extends StatelessWidget {
+class _ActionTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const _AdminActionTile({
+  const _ActionTile({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -311,21 +236,12 @@ class _AdminActionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                  Text(title,
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text(subtitle,
+                      style: GoogleFonts.poppins(
+                          fontSize: 13, color: AppColors.textSecondary)),
                 ],
               ),
             ),

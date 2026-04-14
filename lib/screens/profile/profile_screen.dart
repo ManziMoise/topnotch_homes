@@ -4,10 +4,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../admin/admin_dashboard_screen.dart';
 import '../auth/login_screen.dart';
 import '../bookings/my_bookings_screen.dart';
+import '../dashboard/host_dashboard_screen.dart';
+import '../dashboard/manager_dashboard_screen.dart';
+import '../dashboard/user_dashboard_screen.dart';
+import '../faq/faq_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -92,6 +97,22 @@ class ProfileScreen extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                user.roleLabel,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
             const SizedBox(height: 30),
 
             // Info cards
@@ -120,23 +141,50 @@ class ProfileScreen extends StatelessWidget {
             _actionTile(
               icon: Icons.help_outline,
               label: 'Help & Support',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon')),
-                );
-              },
-            ),
-            const Divider(height: 24),
-            _actionTile(
-              icon: Icons.admin_panel_settings_outlined,
-              label: 'Admin Panel',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => AdminDashboardScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const FaqScreen()),
               ),
             ),
+            const Divider(height: 24),
+
+            // Role-based dashboard links
+            if (user.role == UserRole.admin)
+              _actionTile(
+                icon: Icons.admin_panel_settings_outlined,
+                label: 'Admin Dashboard',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                ),
+              ),
+            if (user.role == UserRole.manager)
+              _actionTile(
+                icon: Icons.dashboard_outlined,
+                label: 'Manager Dashboard',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ManagerDashboardScreen()),
+                ),
+              ),
+            if (user.role == UserRole.host)
+              _actionTile(
+                icon: Icons.home_work_outlined,
+                label: 'Host Dashboard',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => HostDashboardScreen()),
+                ),
+              ),
+            if (user.role == UserRole.user)
+              _actionTile(
+                icon: Icons.dashboard_outlined,
+                label: 'My Dashboard',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => UserDashboardScreen()),
+                ),
+              ),
             const SizedBox(height: 30),
 
             // Logout button

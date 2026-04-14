@@ -5,9 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../config/theme.dart';
 import '../../models/property.dart';
 import '../../services/review_service.dart';
+import '../../widgets/property_map_preview.dart';
 import '../../widgets/review_card.dart';
 import '../../widgets/star_rating.dart';
 import '../booking/booking_form_screen.dart';
+import 'activities_section.dart';
 
 class PropertyDetailScreen extends StatefulWidget {
   final Property property;
@@ -239,6 +241,17 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   ),
                   const SizedBox(height: 24),
 
+                  // Location map
+                  if (property.hasCoordinates)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: PropertyMapPreview(
+                        latitude: property.latitude!,
+                        longitude: property.longitude!,
+                        title: property.title,
+                      ),
+                    ),
+
                   // Amenities
                   Text(
                     'Amenities',
@@ -257,6 +270,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         .toList(),
                   ),
                   const SizedBox(height: 24),
+
+                  // Activities
+                  ActivitiesSection(city: property.city),
 
                   // Reviews section
                   _ReviewsSection(

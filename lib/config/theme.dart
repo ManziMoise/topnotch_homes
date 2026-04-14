@@ -15,6 +15,11 @@ class AppColors {
   static const success = Color(0xFF10B981);
   static const error = Color(0xFFEF4444);
   static const starYellow = Color(0xFFFBBF24);
+
+  // Tier badge colors
+  static const bronze = Color(0xFFCD7F32);
+  static const silver = Color(0xFFA8A9AD);
+  static const gold = Color(0xFFD4A843);
 }
 
 class AppTheme {

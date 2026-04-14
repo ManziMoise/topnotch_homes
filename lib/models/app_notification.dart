@@ -1,7 +1,11 @@
+import '../models/user.dart';
+
 enum NotificationType {
   bookingConfirmed,
   bookingPending,
   bookingCancelled,
+  bookingRequest,
+  bookingCancelledByGuest,
   paymentReceived,
   reviewReceived,
   general,
@@ -15,6 +19,8 @@ class AppNotification {
   final DateTime createdAt;
   bool isRead;
   final String? bookingId;
+  final String? targetUserId;
+  final UserRole? targetRole;
 
   AppNotification({
     required this.id,
@@ -24,5 +30,7 @@ class AppNotification {
     required this.createdAt,
     this.isRead = false,
     this.bookingId,
+    this.targetUserId,
+    this.targetRole,
   });
 }

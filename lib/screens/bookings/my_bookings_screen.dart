@@ -1,17 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
 import '../../models/booking.dart';
+import '../../services/auth_service.dart';
 import '../../services/booking_service.dart';
+import '../../services/notification_service.dart';
 
-class MyBookingsScreen extends StatelessWidget {
+class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
 
   @override
+  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+}
+
+class _MyBookingsScreenState extends State<MyBookingsScreen> {
+  final _bookingService = BookingService();
+  final _notificationService = NotificationService();
+
+  void _confirmCancel(Booking booking) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Cancel Booking',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text(
+            'Are you sure you want to cancel your booking at ${booking.propertyTitle}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Keep'),
+          ),
+          TextButton(
+            onPressed: () {
+              _bookingService.cancelBooking(booking.id);
+              _notificationService.sendBookingCancelledNotification(
+                bookingId: booking.id,
+                propertyTitle: booking.propertyTitle,
+                cancelledBy: booking.guestName,
+                guestUserId: booking.guestUserId,
+              );
+              Navigator.pop(ctx);
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Booking cancelled'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            },
+            child: const Text('Cancel Booking',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bookings = BookingService().getAllBookings();
+    final authService = context.watch<AuthService>();
+    final user = authService.currentUser;
+
+    List<Booking> bookings;
+    if (user != null) {
+      bookings = _bookingService.getBookingsForUser(user.id);
+      if (bookings.isEmpty) {
+        bookings = _bookingService.getAllBookings();
+      }
+    } else {
+      bookings = _bookingService.getAllBookings();
+    }
+
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Scaffold(
@@ -47,8 +109,14 @@ class MyBookingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               itemCount: bookings.length,
               itemBuilder: (context, index) {
-                final booking = bookings[bookings.length - 1 - index]; // newest first
-                return _BookingCard(booking: booking, dateFormat: dateFormat);
+                final booking = bookings[bookings.length - 1 - index];
+                return _BookingCard(
+                  booking: booking,
+                  dateFormat: dateFormat,
+                  onCancel: booking.status == BookingStatus.pending
+                      ? () => _confirmCancel(booking)
+                      : null,
+                );
               },
             ),
     );
@@ -58,8 +126,13 @@ class MyBookingsScreen extends StatelessWidget {
 class _BookingCard extends StatelessWidget {
   final Booking booking;
   final DateFormat dateFormat;
+  final VoidCallback? onCancel;
 
-  const _BookingCard({required this.booking, required this.dateFormat});
+  const _BookingCard({
+    required this.booking,
+    required this.dateFormat,
+    this.onCancel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +200,30 @@ class _BookingCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (onCancel != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onCancel,
+                  icon: const Icon(Icons.cancel_outlined,
+                      size: 18, color: AppColors.error),
+                  label: Text(
+                    'Cancel Booking',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.error),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
 import '../../models/property.dart';
+import '../../services/auth_service.dart';
 import '../../services/booking_service.dart';
+import '../../services/notification_service.dart';
+import '../../services/settings_service.dart';
 import '../payment/payment_screen.dart';
 
 class BookingFormScreen extends StatefulWidget {
@@ -26,6 +30,23 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   DateTime? _checkIn;
   DateTime? _checkOut;
   int _guests = 1;
+  late int _maxStay;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-fill from logged-in user
+    final authService = context.read<AuthService>();
+    final user = authService.currentUser;
+    if (user != null) {
+      _nameController.text = user.fullName;
+      _phoneController.text = user.phone;
+      _emailController.text = user.email;
+    }
+    // Get max stay
+    final settingsService = SettingsService();
+    _maxStay = settingsService.getMaxStayForProperty(widget.property.maxStayDays);
+  }
 
   int get _nights =>
       (_checkIn != null && _checkOut != null)
@@ -87,16 +108,39 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
       return;
     }
 
+    if (_nights > _maxStay) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Maximum stay is $_maxStay nights for this property'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final authService = context.read<AuthService>();
+    final user = authService.currentUser;
+
     final booking = _bookingService.createBooking(
       propertyId: widget.property.id,
       propertyTitle: widget.property.title,
       guestName: _nameController.text.trim(),
       guestPhone: _phoneController.text.trim(),
       guestEmail: _emailController.text.trim(),
+      guestUserId: user?.id,
       checkIn: _checkIn!,
       checkOut: _checkOut!,
       guests: _guests,
       nightlyRate: widget.property.pricePerNight,
+    );
+
+    // Send host notification
+    final notificationService = NotificationService();
+    notificationService.sendBookingRequestToHost(
+      bookingId: booking.id,
+      propertyTitle: widget.property.title,
+      guestName: _nameController.text.trim(),
+      hostUserId: widget.property.hostId,
     );
 
     Navigator.pushReplacement(
@@ -195,10 +239,28 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+                    color: _nights > _maxStay ? AppColors.error : AppColors.primary,
                   ),
                 ),
+                if (_nights > _maxStay)
+                  Text(
+                    'Maximum stay is $_maxStay nights',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: AppColors.error,
+                    ),
+                  ),
               ],
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Max stay: $_maxStay nights',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: AppColors.textLight,
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
 
               // Guests

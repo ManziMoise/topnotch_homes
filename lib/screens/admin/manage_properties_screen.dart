@@ -5,9 +5,12 @@ import '../../config/theme.dart';
 import '../../models/property.dart';
 import '../../services/property_service.dart';
 import 'add_edit_property_screen.dart';
+import 'property_bookings_screen.dart';
 
 class ManagePropertiesScreen extends StatefulWidget {
-  const ManagePropertiesScreen({super.key});
+  final bool canEdit;
+
+  const ManagePropertiesScreen({super.key, this.canEdit = true});
 
   @override
   State<ManagePropertiesScreen> createState() => _ManagePropertiesScreenState();
@@ -22,19 +25,22 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Properties'),
+        title: Text(widget.canEdit ? 'Manage Properties' : 'View Properties'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
-            onPressed: () => _openAddProperty(),
-          ),
+          if (widget.canEdit)
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+              onPressed: () => _openAddProperty(),
+            ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openAddProperty,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: widget.canEdit
+          ? FloatingActionButton(
+              onPressed: _openAddProperty,
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
       body: properties.isEmpty
           ? Center(
               child: Text(
@@ -52,8 +58,18 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                 final property = properties[index];
                 return _PropertyManageCard(
                   property: property,
+                  canEdit: widget.canEdit,
                   onEdit: () => _openEditProperty(property),
                   onDelete: () => _confirmDelete(property),
+                  onViewBookings: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PropertyBookingsScreen(
+                        propertyId: property.id,
+                        propertyTitle: property.title,
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
@@ -110,13 +126,17 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
 
 class _PropertyManageCard extends StatelessWidget {
   final Property property;
+  final bool canEdit;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onViewBookings;
 
   const _PropertyManageCard({
     required this.property,
+    this.canEdit = true,
     required this.onEdit,
     required this.onDelete,
+    required this.onViewBookings,
   });
 
   @override
@@ -175,15 +195,23 @@ class _PropertyManageCard extends StatelessWidget {
             Column(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20),
-                  color: AppColors.primary,
-                  onPressed: onEdit,
+                  icon: const Icon(Icons.list_alt, size: 20),
+                  color: AppColors.accent,
+                  onPressed: onViewBookings,
+                  tooltip: 'View Bookings',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  color: AppColors.error,
-                  onPressed: onDelete,
-                ),
+                if (canEdit) ...[
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 20),
+                    color: AppColors.primary,
+                    onPressed: onEdit,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                    color: AppColors.error,
+                    onPressed: onDelete,
+                  ),
+                ],
               ],
             ),
           ],

@@ -198,9 +198,7 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
                 items: PropertyType.values
                     .map((t) => DropdownMenuItem(
                           value: t,
-                          child: Text(
-                            t.name[0].toUpperCase() + t.name.substring(1),
-                          ),
+                          child: Text(_tierLabel(t)),
                         ))
                     .toList(),
                 onChanged: (v) {
@@ -261,6 +259,17 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
         ),
       ),
     );
+  }
+
+  String _tierLabel(PropertyType type) {
+    switch (type) {
+      case PropertyType.budget:
+        return 'Bronze';
+      case PropertyType.midrange:
+        return 'Silver';
+      case PropertyType.luxury:
+        return 'Gold';
+    }
   }
 
   Widget _sectionLabel(String text) {

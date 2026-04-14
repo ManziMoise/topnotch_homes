@@ -15,6 +15,8 @@ class Property {
   final bool isFeatured;
   final double? latitude;
   final double? longitude;
+  final String? hostId;
+  final int? maxStayDays;
 
   const Property({
     required this.id,
@@ -31,6 +33,8 @@ class Property {
     this.isFeatured = false,
     this.latitude,
     this.longitude,
+    this.hostId,
+    this.maxStayDays,
   });
 
   bool get hasCoordinates => latitude != null && longitude != null;
@@ -38,11 +42,11 @@ class Property {
   String get propertyTypeLabel {
     switch (propertyType) {
       case PropertyType.budget:
-        return 'Budget';
+        return 'Bronze';
       case PropertyType.midrange:
-        return 'Mid-Range';
+        return 'Silver';
       case PropertyType.luxury:
-        return 'Luxury';
+        return 'Gold';
     }
   }
 

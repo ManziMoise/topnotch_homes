@@ -25,6 +25,7 @@ class PropertyService {
       isFeatured: true,
       latitude: -1.9536,
       longitude: 30.0926,
+      hostId: 'host-001',
     ),
     const Property(
       id: '2',
@@ -48,6 +49,7 @@ class PropertyService {
       isFeatured: true,
       latitude: -1.6813,
       longitude: 29.2387,
+      hostId: 'host-001',
     ),
     const Property(
       id: '3',
@@ -70,6 +72,7 @@ class PropertyService {
       isFeatured: false,
       latitude: -1.4998,
       longitude: 29.6350,
+      hostId: 'host-001',
     ),
     const Property(
       id: '4',
